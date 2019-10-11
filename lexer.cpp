@@ -5,6 +5,10 @@ union TokenValue {
   short shortRepr;
   char* pCharRepr;
   void* pVoidRepr;
+  TokenValue(int repr) : intRepr(repr) {}
+  TokenValue(short repr) : shortRepr(repr) {}
+  TokenValue(char* repr) : pCharRepr(repr) {}
+  TokenValue(void* repr) : pVoidRepr(repr) {}
 };
 
 enum SyntaxKind {
@@ -27,7 +31,7 @@ private:
   std::string _data;
   int _position;
   
-  char currToken() {
+  char currentChar() {
     if (_position > _data.length) {
       return '\0';
     }
@@ -42,7 +46,7 @@ public:
   }
 
   SyntaxToken nextToken() {
-    char tkn = this->currToken();
+    char tkn = this->currentChar();
     if (isdigit(tkn)) {
       int startPos = _position;
       while (isdigit(tkn)) {
@@ -50,9 +54,7 @@ public:
       }
       int finishPos = _position - startPos;
       std::string data = this->_data.substr(startPos, finishPos);
-      TokenValue value;
-      value.intRepr = std::stoi(data);
-      return SyntaxToken(Whitespace, startPos, data, value);
+      return SyntaxToken(Number, startPos, data, TokenValue(std::stoi(data)));
     }
 
     if (isspace(tkn)) {
@@ -62,10 +64,7 @@ public:
       }
       int finishPos = _position - startPos;
       std::string data = this->_data.substr(startPos, finishPos);
-      int tokenValue = std::stoi(data);
-      TokenValue value;
-      value.intRepr = std::stoi(data);
-      return SyntaxToken(Whitespace, startPos, data, value);
+      return SyntaxToken(Whitespace, startPos, data, TokenValue(std::stoi(data)));
     }
   }
 };
